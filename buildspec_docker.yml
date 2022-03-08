@@ -1,0 +1,32 @@
+version: 0.2
+
+env:
+  variables:
+    IMAGE_REPO_NAME: "tb06993-products"
+    DOCKER_USER: "jwgukr"
+    DOCKER_PW: "1dff124b-b063-4eb2-8988-d6c4178706f7"
+
+phases:
+  install:
+    runtime-versions:
+      java: corretto8
+      docker: 18
+  pre_build:
+    commands:
+      - echo Logging in to Docker Hub...
+      # Type the command to log in to your Docker Hub account here.      
+      - docker login -u $DOCKER_USER -p $DOCKER_PW
+      - TAG="$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | head -c 8)"     
+  build:
+    commands:
+      - echo Build started on `date`
+      - echo Building the Docker image...
+      - docker build -t $DOCKER_USER/$IMAGE_REPO_NAME:$TAG .
+  post_build:
+    commands:
+      - echo Build completed on `date`
+      - echo Pushing the Docker image...
+      - docker push $DOCKER_USER/$IMAGE_REPO_NAME:$TAG
+cache:
+  paths:
+    - '/root/.m2/**/*'
